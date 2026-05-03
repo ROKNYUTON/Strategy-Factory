@@ -165,6 +165,7 @@ StrategyFactory/
 | Task 5 — Pipeline orchestrator         | ✅ |
 | Task 6 — Documentation                 | ✅ |
 | Task 7 — E2E tests + fixtures          | ✅ |
+| Task 8 — Python-first Alpha Research engine | 🚧 In progress |
 | **Tests passing**                      | **25/25** |
 
 ### Verified working in this build

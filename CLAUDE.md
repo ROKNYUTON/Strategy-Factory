@@ -56,6 +56,9 @@
 | PnL decomposer | `analysis/pnl_decomposer.py` | Aggregate decomposition + WTI-style guard. |
 | Acceptance check | `analysis/acceptance_check.py` | PASS/FAIL gate against `acceptance_criteria` in spec. |
 | Hypothesis log | `docs/HYPOTHESIS_LOG.md` | Append-only research diary. |
+| Python alpha engine | `python_engine/` | Python-first research engine: vectorized backtests, optimization, top-N selection before MQL5 translation. |
+| Per-strategy workspace | `strategies/<name>/` | One folder per hypothesis: code, data_cache, results, logs, README. Bootstrapped from `strategies/.template/`. |
+| Python pipeline | `automation/pipeline_python.py` | Python-first orchestrator: paper → strategy code → optimize → top-10 → MQL5 translation handoff. |
 
 ---
 

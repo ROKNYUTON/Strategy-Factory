@@ -57,3 +57,13 @@ htmlcov/
 # Tester artifacts (MT5 generates these inside MT5 folder, just in case copies leak)
 *.ini.tmp
 tester_*.ini
+
+# Python-first engine: per-strategy local artifacts
+strategies/*/data_cache/
+strategies/*/results/equity_curves/*.png
+strategies/*/logs/
+
+# Research papers (PDFs/DOCX live locally, not in git)
+research_papers/*.pdf
+research_papers/*.docx
+!research_papers/.gitkeep

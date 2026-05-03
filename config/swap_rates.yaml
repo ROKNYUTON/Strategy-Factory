@@ -1,0 +1,56 @@
+# Daily swap charges in account currency (USD) for 1 standard lot.
+# Negative = trader pays, positive = trader receives.
+# Wednesday: triple swap charge for FX (settlement convention).
+# Verify against actual broker swap stream — these are baseline estimates.
+swap_rates:
+  EURUSD:
+    long: -3.5
+    short: 0.8
+  USDJPY:
+    long: 1.2
+    short: -4.1
+  GBPUSD:
+    long: -3.8
+    short: 0.5
+  AUDUSD:
+    long: -1.5
+    short: -0.3
+  NZDUSD:
+    long: -1.8
+    short: -0.2
+  USDCAD:
+    long: 0.4
+    short: -3.0
+  USDCHF:
+    long: 0.8
+    short: -3.2
+  EURJPY:
+    long: -1.2
+    short: -2.8
+  EURGBP:
+    long: -0.5
+    short: -1.5
+  EURCHF:
+    long: -0.3
+    short: -2.0
+  EURAUD:
+    long: -2.5
+    short: -1.0
+  GBPJPY:
+    long: -0.5
+    short: -3.0
+  GBPNZD:
+    long: -3.0
+    short: -1.5
+  AUDJPY:
+    long: 0.3
+    short: -2.5
+  XAUUSD:
+    long: -8.0
+    short: 4.0
+triple_swap_day: "Wednesday"  # FX convention
+commission_per_lot:
+  fx_major: 7.0      # USD round-turn
+  fx_cross: 9.0
+  commodity_metal: 0.0
+  index: 0.0
