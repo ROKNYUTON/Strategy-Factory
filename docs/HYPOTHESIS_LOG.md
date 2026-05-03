@@ -195,3 +195,28 @@ directional_pct: 124.5799562588447
 **Artifacts:**
 - Spec: `/Users/edoardogauna/Desktop/StrategyFactory/strategy_specs/STR_999_e2e_pass_full.yaml`
 - Verdict JSON: `backtests/parsed_results/STR_999_e2e_pass_full/acceptance_verdict.json`
+
+## 2026-05-03 — STR_999_e2e_pass_full — FAIL ❌
+
+```yaml
+date: 2026-05-03
+strategy_id: STR_999_e2e_pass_full
+verdict: FAIL
+checks_passed: 9
+checks_failed: 3
+is_sharpe: 4.902620240062567
+oos_sharpe: 4.902620240062567
+p_value_sharpe: 0.018
+p_value_sharpe_oos: 0.018
+wfa_efficiency: 0.0
+directional_pct: 124.5799562588447
+```
+
+**Failed checks:**
+- IS bootstrap p-value <= max
+- OOS bootstrap p-value <= max
+- WFA efficiency >= min
+
+**Artifacts:**
+- Spec: `/Users/edoardogauna/Desktop/StrategyFactory/strategy_specs/STR_999_e2e_pass_full.yaml`
+- Verdict JSON: `backtests/parsed_results/STR_999_e2e_pass_full/acceptance_verdict.json`
