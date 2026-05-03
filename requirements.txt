@@ -23,6 +23,9 @@ MetaTrader5>=5.0.45
 click>=8.1
 rich>=13.0
 
+# Hyperparameter optimization
+optuna>=3.0
+
 # Date utilities
 python-dateutil>=2.8
 
