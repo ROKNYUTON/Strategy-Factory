@@ -1,0 +1,24 @@
+{
+  "strategy_id": "TEST_FAIL_pvalue",
+  "generated_at": "2026-05-02T00:00:00Z",
+  "engine_version": "StrategyFactory-1.0",
+  "period": "is",
+  "summary": {
+    "initial_balance": 10000.0,
+    "net_profit": 50.0,
+    "gross_profit": 1500.0,
+    "gross_loss": -1450.0,
+    "profit_factor": 1.03,
+    "expected_payoff": 0.33,
+    "max_drawdown_abs": 800.0,
+    "max_drawdown_pct": 8.0,
+    "total_trades": 150,
+    "winning_trades": 75,
+    "losing_trades": 75,
+    "win_rate": 0.50,
+    "sharpe_ratio_mt5": 0.12,
+    "recovery_factor": 0.06
+  },
+  "trades": [],
+  "_note": "Fixture: random-walk-like returns. Bootstrap p-value should NOT reject H0. e2e generates 150 trades from N(0, sigma)."
+}

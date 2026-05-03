@@ -1,0 +1,173 @@
+# ============================================================
+# DARWINEX SYMBOL MAPPING
+# ============================================================
+# Map between common names and Darwinex broker symbol codes.
+# Verify against your broker's Market Watch — symbol codes vary.
+# ============================================================
+
+symbols:
+  # FX Majors
+  EURUSD:
+    broker_symbol: "EURUSD"
+    asset_class: "fx_major"
+    pip_value_usd: 10.0
+    typical_spread_pips: 0.4
+
+  GBPUSD:
+    broker_symbol: "GBPUSD"
+    asset_class: "fx_major"
+    pip_value_usd: 10.0
+    typical_spread_pips: 0.6
+
+  USDJPY:
+    broker_symbol: "USDJPY"
+    asset_class: "fx_major"
+    pip_value_usd: 9.0
+    typical_spread_pips: 0.4
+
+  AUDUSD:
+    broker_symbol: "AUDUSD"
+    asset_class: "fx_major"
+    pip_value_usd: 10.0
+    typical_spread_pips: 0.5
+
+  NZDUSD:
+    broker_symbol: "NZDUSD"
+    asset_class: "fx_major"
+    pip_value_usd: 10.0
+    typical_spread_pips: 0.8
+
+  USDCAD:
+    broker_symbol: "USDCAD"
+    asset_class: "fx_major"
+    pip_value_usd: 7.5
+    typical_spread_pips: 0.6
+
+  USDCHF:
+    broker_symbol: "USDCHF"
+    asset_class: "fx_major"
+    pip_value_usd: 11.0
+    typical_spread_pips: 0.6
+
+  # FX Crosses
+  EURJPY:
+    broker_symbol: "EURJPY"
+    asset_class: "fx_cross"
+    pip_value_usd: 9.0
+    typical_spread_pips: 0.7
+
+  EURGBP:
+    broker_symbol: "EURGBP"
+    asset_class: "fx_cross"
+    pip_value_usd: 13.0
+    typical_spread_pips: 0.7
+
+  AUDJPY:
+    broker_symbol: "AUDJPY"
+    asset_class: "fx_cross"
+    pip_value_usd: 9.0
+    typical_spread_pips: 0.9
+
+  GBPJPY:
+    broker_symbol: "GBPJPY"
+    asset_class: "fx_cross"
+    pip_value_usd: 9.0
+    typical_spread_pips: 1.2
+
+  # Commodities
+  XAUUSD:
+    broker_symbol: "XAUUSD"
+    asset_class: "commodity_metal"
+    point_value_usd: 1.0
+    typical_spread_pips: 30
+
+  XAGUSD:
+    broker_symbol: "XAGUSD"
+    asset_class: "commodity_metal"
+    point_value_usd: 50.0
+    typical_spread_pips: 25
+
+  XTIUSD:
+    broker_symbol: "XTIUSD"
+    asset_class: "commodity_energy"
+    point_value_usd: 10.0
+    typical_spread_pips: 30
+
+  XNGUSD:
+    broker_symbol: "XNGUSD"
+    asset_class: "commodity_energy"
+    point_value_usd: 1.0
+    typical_spread_pips: 30
+
+  # Indices
+  NDX:
+    broker_symbol: "NDX"
+    asset_class: "index_us"
+    point_value_usd: 1.0
+    typical_spread_points: 1.5
+
+  SP500:
+    broker_symbol: "SP500"
+    asset_class: "index_us"
+    point_value_usd: 1.0
+    typical_spread_points: 0.4
+
+  WS30:
+    broker_symbol: "WS30"
+    asset_class: "index_us"
+    point_value_usd: 1.0
+    typical_spread_points: 2.0
+
+  GDAXI:
+    broker_symbol: "GDAXI"
+    asset_class: "index_eu"
+    point_value_eur: 1.0
+    typical_spread_points: 1.0
+
+  FCHI40:
+    broker_symbol: "FCHI40"
+    asset_class: "index_eu"
+    point_value_eur: 1.0
+    typical_spread_points: 1.0
+
+  STOXX50E:
+    broker_symbol: "STOXX50E"
+    asset_class: "index_eu"
+    point_value_eur: 1.0
+    typical_spread_points: 1.0
+
+  UK100:
+    broker_symbol: "UK100"
+    asset_class: "index_eu"
+    point_value_gbp: 1.0
+    typical_spread_points: 1.0
+
+  SPA35:
+    broker_symbol: "SPA35"
+    asset_class: "index_eu"
+    point_value_eur: 1.0
+    typical_spread_points: 4.0
+
+  AUS200:
+    broker_symbol: "AUS200"
+    asset_class: "index_apac"
+    point_value_aud: 1.0
+    typical_spread_points: 1.5
+
+  NI225:
+    broker_symbol: "NI225"
+    asset_class: "index_apac"
+    point_value_jpy: 100.0
+    typical_spread_points: 7.0
+
+# ============================================================
+# Asset class mapping (used by analysis for grouping)
+# ============================================================
+asset_classes:
+  fx_major: ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "NZDUSD", "USDCAD", "USDCHF"]
+  fx_cross: ["EURJPY", "EURGBP", "AUDJPY", "GBPJPY"]
+  commodity_metal: ["XAUUSD", "XAGUSD"]
+  commodity_energy: ["XTIUSD", "XNGUSD"]
+  index_us: ["NDX", "SP500", "WS30"]
+  index_eu: ["GDAXI", "FCHI40", "STOXX50E", "UK100", "SPA35"]
+  index_apac: ["AUS200", "NI225"]

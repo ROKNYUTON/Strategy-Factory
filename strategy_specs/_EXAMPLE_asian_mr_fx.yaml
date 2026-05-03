@@ -1,0 +1,166 @@
+# ============================================================
+# EXAMPLE: Asian Session Mean Reversion on EURUSD/GBPUSD
+# ============================================================
+# This is the ortho strategy #1 from the portfolio roadmap.
+# Goal: add mean-reversion + Asian-session exposure to a US-trend
+# dominated book (current Kurt 21, target < 8).
+# ============================================================
+
+meta:
+  strategy_id: "STR_001_asian_mr_fx"
+  author: "scyf"
+  created_date: "2026-05-02"
+  hypothesis_version: "1.0"
+  tags: ["mean_reversion", "fx_major", "asian_session", "orthogonal_target_1"]
+
+hypothesis:
+  rationale: |
+    During the Asian session (22:00-06:00 UTC), liquidity in EURUSD and GBPUSD
+    is significantly thinner than during London/NY hours. Large directional
+    flows are absent. Microstructure noise dominates and creates short-lived
+    extremes that mean-revert before London open. Fading 2-sigma deviations
+    inside this window captures a behavioral edge that disappears once
+    institutional flow resumes at 07:00 UTC.
+
+  expected_edge_source: "mean_reversion"
+  expected_regime_performance: "low_vol_sideways"
+
+  expected_failure_modes: |
+    - Asian session trending days (rare but happen on BoJ surprise, geopolitical
+      escalation news during Tokyo hours).
+    - Holiday low-liquidity gaps that don't revert (Japan Golden Week,
+      Christmas/New Year weeks).
+    - High-vol regime days where 2-sigma is the new normal — strategy keeps
+      adding to losers. ATR floor + DD circuit breaker mitigate but don't eliminate.
+
+  expected_holding_period: "intraday"
+
+universe:
+  symbols: ["EURUSD", "GBPUSD"]
+  timeframe: "M15"
+  trading_session_utc:
+    start: "22:00"
+    end: "06:00"
+    crosses_midnight: true
+  trading_days: ["Mon", "Tue", "Wed", "Thu"]  # Friday excluded (weekend gap risk)
+  news_blackout:
+    enabled: true
+    minutes_before: 15
+    minutes_after: 30
+
+entry_rules:
+  description: |
+    Long when price closes BELOW lower Bollinger Band (20, 2.0) AND RSI(14) < 25.
+    Short when price closes ABOVE upper Bollinger Band (20, 2.0) AND RSI(14) > 75.
+    Both subject to ATR floor (avoid dead-flat) and trading session.
+
+  long:
+    enabled: true
+    conditions:
+      - type: "indicator_threshold"
+        indicator: "RSI"
+        params: { period: 14, applied_price: "close" }
+        operator: "<"
+        value: 25
+      - type: "indicator_threshold"
+        indicator: "BollingerBands"
+        params: { period: 20, deviations: 2.0 }
+        operator: "price_below_lower"
+
+  short:
+    enabled: true
+    conditions:
+      - type: "indicator_threshold"
+        indicator: "RSI"
+        params: { period: 14, applied_price: "close" }
+        operator: ">"
+        value: 75
+      - type: "indicator_threshold"
+        indicator: "BollingerBands"
+        params: { period: 20, deviations: 2.0 }
+        operator: "price_above_upper"
+
+  filter_rules:
+    - description: "ATR floor — skip if volatility too low to reach TP"
+      type: "indicator_threshold"
+      indicator: "ATR"
+      params: { period: 14 }
+      operator: ">"
+      reference: "ATR(14) average over last 100 bars * 0.5"
+
+exit_rules:
+  stop_loss:
+    type: "atr_multiple"
+    value: 1.5
+    atr_period: 14
+  take_profit:
+    type: "atr_multiple"
+    value: 2.0
+    atr_period: 14
+  time_exit:
+    enabled: true
+    max_holding_bars: 16  # 4 hours — must close before London open influence
+  trailing:
+    enabled: false
+  reverse_on_opposite_signal: false
+
+risk:
+  position_sizing: "risk_per_trade_pct"
+  risk_per_trade_pct: 0.5
+  max_concurrent_positions: 2
+  max_concurrent_per_symbol: 1
+  max_daily_loss_pct: 2.0
+  max_drawdown_pct_circuit_breaker: 10.0
+  max_slippage_points: 20
+
+backtest:
+  is_period:
+    start: "2018-01-01"
+    end: "2023-12-31"
+  oos_period:
+    start: "2024-01-01"
+    end: "2024-12-31"
+  forward_period:
+    start: "2025-01-01"
+    end: "2025-12-31"
+  initial_balance: 10000
+  currency: "USD"
+  leverage: 30
+  modeling: "every_tick_real"
+  use_real_spread: true
+  optimization: false
+
+acceptance_criteria:
+  is_min_sharpe: 0.8
+  oos_min_sharpe: 0.6
+  bootstrap_max_pvalue: 0.01
+  max_drawdown_pct: 12.0  # tighter than default — MR strategies must have low DD
+  min_trades: 150  # higher than default — Asian session = more setups
+  param_sensitivity_min_retained: 0.5
+  pnl_decomposition:
+    min_directional_pnl_pct: 80  # MR has minimal swap exposure (intraday)
+
+orthogonality_target:
+  target_correlation_with_existing_book: 0.15
+  target_uncovered_dimension: "asian_session_low_vol_mean_reversion"
+  orthogonality_rationale: |
+    Current book: 95% US-session trend-following on indices and metals.
+    This strategy:
+    - Different time (Asian session, no overlap with current trades)
+    - Different style (mean reversion vs trend following)
+    - Different asset (FX majors vs indices/metals)
+    - Different regime (low-vol sideways vs trending)
+    - Different holding period (intraday vs overnight/multi-day)
+    Five independent dimensions of orthogonality. Expected daily P&L
+    correlation < 0.15 with current book.
+
+notes: |
+  References:
+  - Bouchaud & Potters, "Theory of Financial Risk and Derivative Pricing" — Ch. 5 on intraday mean reversion
+  - Avellaneda & Stoikov, "High-frequency trading in a limit order book" (2008)
+  - Empirical observation from own data: EURUSD M15 returns during 22:00-06:00 UTC
+    show mean-reversion coefficient ~0.18 vs ~0.05 during London hours (2018-2024 sample)
+
+  Open questions for next iteration:
+  - Does adding a session-volatility filter (e.g., "only trade when Asian ATR < 60% of daily ATR") improve Sharpe?
+  - Is there a benefit from differentiating Tokyo (00:00-09:00 JST = 15:00-00:00 UTC) vs Sydney-only hours?

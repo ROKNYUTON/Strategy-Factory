@@ -1,0 +1,31 @@
+# Core data
+pandas>=2.0
+numpy>=1.24
+
+# Config and validation
+pyyaml>=6.0
+pydantic>=2.0
+
+# HTML/XML parsing for MT5 reports
+lxml>=4.9
+beautifulsoup4>=4.12
+
+# Statistics
+scipy>=1.11
+
+# Visualization (analysis only)
+matplotlib>=3.7
+
+# MT5 Python integration
+MetaTrader5>=5.0.45
+
+# CLI and TUI
+click>=8.1
+rich>=13.0
+
+# Date utilities
+python-dateutil>=2.8
+
+# Testing
+pytest>=7.4
+pytest-cov>=4.1

@@ -1,0 +1,60 @@
+# ============================================================
+# MT5 PATH CONFIGURATION — VERIFY EVERY PATH BELOW
+# ============================================================
+# After installing MT5, open a CMD window and verify each path:
+#   dir "C:\Program Files\MetaTrader 5\terminal64.exe"
+#   dir "C:\Program Files\MetaTrader 5\metaeditor64.exe"
+# ============================================================
+
+mt5:
+  # Path to terminal64.exe (the MT5 client)
+  terminal_exe: "C:/Program Files/MetaTrader 5/terminal64.exe"
+
+  # Path to metaeditor64.exe (the compiler)
+  # Note: on some installs it's metaeditor.exe (32-bit). Check yours.
+  metaeditor_exe: "C:/Program Files/MetaTrader 5/metaeditor64.exe"
+
+  # MT5 data folder. Find via MT5 menu: File → Open Data Folder
+  # Typically under %APPDATA%\MetaQuotes\Terminal\<HEX>\
+  # Example: "C:/Users/YourUser/AppData/Roaming/MetaQuotes/Terminal/D0E8209F77C8CF37AD8BF550E51FF075"
+  data_folder: "REPLACE_ME_WITH_YOUR_MT5_DATA_FOLDER"
+
+  # MQL5/Experts subfolder (where compiled .ex5 must live to be visible to MT5)
+  # Resolved as: {data_folder}/MQL5/Experts
+  experts_subfolder: "MQL5/Experts"
+
+  # MQL5/Files subfolder (where Logger.mqh writes CSV trade logs)
+  files_subfolder: "MQL5/Files"
+
+  # Tester reports subfolder
+  reports_subfolder: "tester/Reports"
+
+  # Use portable mode? Recommended: true.
+  # Portable mode keeps everything inside the MT5 install folder (no AppData).
+  # If true, terminal64.exe is launched with /portable flag.
+  portable_mode: false
+
+  # Login info for tick data (only needed if you let StrategyFactory
+  # programmatically download missing ticks via MetaTrader5 Python package)
+  # Leave empty if you handle ticks manually inside MT5.
+  login: 0
+  password: ""
+  server: ""
+
+# ============================================================
+# Backtest defaults (overridable per spec)
+# ============================================================
+backtest:
+  # Tester model: 0 = every tick based on real ticks (gold standard, slow)
+  #               1 = 1-minute OHLC (fast, less accurate)
+  #               2 = open prices only (fastest, prototype only)
+  default_model: 0
+
+  # Use real spread from broker tick data (1) or fixed (0)
+  use_real_spread: 1
+
+  # Default backtest timeout per period (seconds)
+  timeout_seconds: 1800
+
+  # Polling interval to check for tester completion (seconds)
+  poll_interval: 5

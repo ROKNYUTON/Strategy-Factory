@@ -1,0 +1,24 @@
+{
+  "strategy_id": "TEST_FAIL_swap",
+  "generated_at": "2026-05-02T00:00:00Z",
+  "engine_version": "StrategyFactory-1.0",
+  "period": "is",
+  "summary": {
+    "initial_balance": 10000.0,
+    "net_profit": 1800.0,
+    "gross_profit": 2400.0,
+    "gross_loss": -600.0,
+    "profit_factor": 4.0,
+    "expected_payoff": 12.0,
+    "max_drawdown_abs": 250.0,
+    "max_drawdown_pct": 2.5,
+    "total_trades": 150,
+    "winning_trades": 105,
+    "losing_trades": 45,
+    "win_rate": 0.70,
+    "sharpe_ratio_mt5": 1.85,
+    "recovery_factor": 7.2
+  },
+  "trades": [],
+  "_note": "Fixture: high total profit BUT 75% comes from swap. WTI guard MUST flag this. The e2e test generates 150 trades programmatically with profit_swap >> profit_directional."
+}

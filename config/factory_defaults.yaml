@@ -1,0 +1,76 @@
+# ============================================================
+# FACTORY DEFAULT ACCEPTANCE CRITERIA
+# ============================================================
+# These are the global thresholds applied to every strategy unless
+# the spec overrides them in its `acceptance_criteria` block.
+# ============================================================
+
+acceptance_criteria:
+  # Minimum Sharpe Ratio on In-Sample period
+  is_min_sharpe: 0.8
+
+  # Minimum Sharpe Ratio on Out-of-Sample period
+  oos_min_sharpe: 0.6
+
+  # Maximum bootstrap p-value (after multiple testing correction)
+  bootstrap_max_pvalue: 0.01
+
+  # Number of bootstrap iterations
+  bootstrap_iterations: 5000
+
+  # Minimum number of trades for statistical validity
+  min_trades: 100
+
+  # Maximum drawdown allowed (percentage of initial balance)
+  max_drawdown_pct: 15.0
+
+  # Parameter sensitivity: minimum fraction of original Sharpe
+  # retained at ±20% perturbation of any key parameter
+  param_sensitivity_min_retained: 0.5
+  param_sensitivity_perturbation: 0.20  # ±20%
+
+  # PnL decomposition guard (the "WTI lesson")
+  pnl_decomposition:
+    # Minimum % of net positive PnL that must come from directional movement
+    # (NOT swap, NOT commissions). Below this, the strategy is a carry trade.
+    min_directional_pnl_pct: 60
+
+    # If swap > X% of total positive PnL, alert
+    max_swap_pnl_pct: 40
+
+  # Walk-forward analysis efficiency (OOS Sharpe / IS Sharpe)
+  wfa_efficiency_min: 0.5
+
+  # Outlier robustness: Sharpe must remain valid after removing top 5% of trades
+  outlier_robustness_min_sharpe_retained: 0.6
+
+# ============================================================
+# Portfolio fit criteria (orthogonality with existing book)
+# ============================================================
+portfolio_fit:
+  # Maximum acceptable Pearson correlation of daily P&L with current portfolio
+  target_correlation_with_existing_book: 0.2
+
+  # Maximum acceptable tail correlation (worst 10% days)
+  max_tail_correlation: 0.4
+
+  # Required: which N_eff increase would justify accepting borderline strategy
+  min_n_eff_contribution: 0.3
+
+# ============================================================
+# Multiple testing correction
+# ============================================================
+multiple_testing:
+  # Method: bonferroni | benjamini_hochberg
+  method: "benjamini_hochberg"
+
+  # If true, apply correction across all hypotheses logged in last N days
+  rolling_window_days: 90
+
+# ============================================================
+# Logging and reporting
+# ============================================================
+logging:
+  level: "INFO"  # DEBUG | INFO | WARN | ERROR
+  console_output: true
+  file_output: true

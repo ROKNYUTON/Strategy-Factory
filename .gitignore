@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+.env
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# MT5 outputs
+*.ex5
+*.ex4
+mql5/compiled/*.ex5
+backtests/raw_reports/**/*
+!backtests/raw_reports/.gitkeep
+backtests/parsed_results/**/*
+!backtests/parsed_results/.gitkeep
+backtests/archive/**/*
+!backtests/archive/.gitkeep
+
+# Cache
+data_ingestion/cache/*
+!data_ingestion/cache/.gitkeep
+
+# Logs
+logs/*
+!logs/.gitkeep
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Generated content (user keeps locally)
+mql5/generated/*.mq5
+!mql5/generated/.gitkeep
+prompts/generation_prompts/*.md
+!prompts/generation_prompts/.gitkeep
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Tester artifacts (MT5 generates these inside MT5 folder, just in case copies leak)
+*.ini.tmp
+tester_*.ini

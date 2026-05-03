@@ -1,0 +1,1 @@
+"""StrategyFactory automation package."""

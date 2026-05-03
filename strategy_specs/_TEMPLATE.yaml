@@ -1,0 +1,227 @@
+# ============================================================
+# STRATEGY HYPOTHESIS SPEC — StrategyFactory
+# ============================================================
+# Fill ONE spec per hypothesis. Be specific. No "maybe", no "tbd".
+# This file IS the prompt that generates your EA via Claude Code.
+#
+# RULES:
+#   - One hypothesis per spec. Don't bundle.
+#   - Round numbers for indicators (no curve-fit "RSI(13.7)").
+#   - Justify every parameter in 'rationale'.
+#   - State the regime where you EXPECT this to work AND fail.
+# ============================================================
+
+meta:
+  # Unique identifier, snake_case. Format: STR_<NUM>_<descriptive_name>
+  strategy_id: "STR_XXX_descriptive_name"
+  author: "your_name"
+  created_date: "YYYY-MM-DD"
+  hypothesis_version: "1.0"
+  # Tags for filtering / grouping in the hypothesis log
+  tags: []
+
+hypothesis:
+  # 3-line economic/behavioral rationale. State the MECHANISM, not "I think".
+  # Example: "EURUSD mean-reverts during Asian session because liquidity is
+  #          thin, large players are absent, and noise dominates microstructure.
+  #          Once London opens, trends resume. Therefore, fade extreme moves
+  #          intraday in the 22:00-06:00 UTC window."
+  rationale: |
+    REPLACE: 3-line mechanism explanation.
+
+  # What kind of edge is this?
+  expected_edge_source: "mean_reversion"  # mean_reversion | trend_following | carry | volatility | arbitrage | momentum | breakout
+
+  # In which market regime do you expect this to perform?
+  expected_regime_performance: "low_vol_sideways"  # low_vol_sideways | trending_bull | trending_bear | high_vol_crisis | all_weather
+
+  # When do you expect this to FAIL? (be honest)
+  expected_failure_modes: |
+    REPLACE: Describe scenarios where this strategy will lose money.
+    Example: "High-volatility news days; trending Asian sessions (rare but happen);
+             central bank intervention windows."
+
+  expected_holding_period: "intraday"  # intraday | swing_1_5d | position_5_30d
+
+universe:
+  # Symbols to trade (must match config/symbols_map.yaml)
+  symbols: ["EURUSD"]
+
+  # Timeframe for entries
+  timeframe: "M15"  # M1 | M5 | M15 | M30 | H1 | H4 | D1
+
+  # UTC trading session (when the EA is allowed to OPEN positions)
+  trading_session_utc:
+    start: "22:00"
+    end: "06:00"
+    # If true, session crosses midnight (e.g., 22:00 → 06:00 next day)
+    crosses_midnight: true
+
+  trading_days: ["Mon", "Tue", "Wed", "Thu", "Fri"]
+
+  # Optional: news blackout window in minutes around high-impact news
+  news_blackout:
+    enabled: false
+    minutes_before: 30
+    minutes_after: 30
+
+# ============================================================
+# Entry rules — ALL conditions must be true (AND logic)
+# Use 'condition_groups' for OR logic (each group is OR-ed)
+# ============================================================
+entry_rules:
+  description: "REPLACE: Plain English description of entry logic"
+
+  long:
+    enabled: true
+    conditions:
+      - type: "indicator_threshold"
+        indicator: "RSI"
+        params: { period: 14, applied_price: "close" }
+        operator: "<"
+        value: 25
+      - type: "indicator_threshold"
+        indicator: "BollingerBands"
+        params: { period: 20, deviations: 2.0 }
+        operator: "price_below_lower"
+
+  short:
+    enabled: true
+    conditions:
+      - type: "indicator_threshold"
+        indicator: "RSI"
+        params: { period: 14, applied_price: "close" }
+        operator: ">"
+        value: 75
+      - type: "indicator_threshold"
+        indicator: "BollingerBands"
+        params: { period: 20, deviations: 2.0 }
+        operator: "price_above_upper"
+
+  # Filters applied to BOTH long and short (must all pass)
+  filter_rules:
+    - description: "Volatility floor — avoid dead-flat conditions"
+      type: "indicator_threshold"
+      indicator: "ATR"
+      params: { period: 14 }
+      operator: ">"
+      # Reference: compare to a longer-period ATR average
+      reference: "ATR(14) average over last 100 bars * 0.5"
+
+# ============================================================
+# Exit rules
+# ============================================================
+exit_rules:
+  stop_loss:
+    type: "atr_multiple"  # atr_multiple | fixed_pips | percentage | custom
+    value: 1.5
+    atr_period: 14
+
+  take_profit:
+    type: "atr_multiple"
+    value: 2.0
+    atr_period: 14
+
+  time_exit:
+    enabled: true
+    max_holding_bars: 16  # 16 × M15 = 4 hours
+
+  trailing:
+    enabled: false
+    type: "atr_multiple"
+    activation_atr: 1.0
+    trail_atr: 0.5
+
+  # Exit on opposite signal
+  reverse_on_opposite_signal: false
+
+# ============================================================
+# Risk management
+# ============================================================
+risk:
+  position_sizing: "risk_per_trade_pct"  # fixed_lot | risk_per_trade_pct | kelly_quarter
+
+  # Used if position_sizing == fixed_lot
+  fixed_lot: 0.01
+
+  # Used if position_sizing == risk_per_trade_pct
+  risk_per_trade_pct: 0.5  # % of equity at risk per trade (defined by SL distance)
+
+  # Used if position_sizing == kelly_quarter (requires historical edge stats in spec)
+  kelly_inputs:
+    expected_win_rate: 0.55
+    expected_avg_win_loss_ratio: 1.3
+
+  max_concurrent_positions: 2
+  max_concurrent_per_symbol: 1
+  max_daily_loss_pct: 2.0
+  max_drawdown_pct_circuit_breaker: 10.0  # halt EA if equity DD exceeds this
+
+  # Slippage tolerance
+  max_slippage_points: 20
+
+# ============================================================
+# Backtest configuration
+# ============================================================
+backtest:
+  is_period:
+    start: "2018-01-01"
+    end: "2023-12-31"
+  oos_period:
+    start: "2024-01-01"
+    end: "2024-12-31"
+  forward_period:
+    start: "2025-01-01"
+    end: "2025-12-31"
+
+  initial_balance: 10000
+  currency: "USD"
+  leverage: 30  # Darwinex retail default
+
+  # Modeling: "every_tick_real" | "1m_ohlc" | "open_prices"
+  modeling: "every_tick_real"
+
+  # Use real spread from broker historical data
+  use_real_spread: true
+
+  # Optimization (single run only by default — optimization is separate)
+  optimization: false
+
+# ============================================================
+# Acceptance criteria (overrides config/factory_defaults.yaml)
+# Leave any field unset to use factory default.
+# ============================================================
+acceptance_criteria:
+  is_min_sharpe: 0.8
+  oos_min_sharpe: 0.6
+  bootstrap_max_pvalue: 0.01
+  max_drawdown_pct: 15.0
+  min_trades: 100
+  param_sensitivity_min_retained: 0.5
+  pnl_decomposition:
+    min_directional_pnl_pct: 60
+
+# ============================================================
+# Orthogonality target — REQUIRED for portfolio fit assessment
+# ============================================================
+orthogonality_target:
+  # Max acceptable Pearson correlation of daily P&L with current book
+  target_correlation_with_existing_book: 0.2
+
+  # Which regime/dimension gap is this strategy filling?
+  target_uncovered_dimension: "asian_session_low_vol"
+  # Examples: "asian_session", "market_neutral", "long_volatility",
+  #           "mean_reversion_intraday", "carry_overnight"
+
+  # Brief justification of why this is orthogonal to the current book
+  orthogonality_rationale: |
+    REPLACE: Why is this independent of your current strategies?
+    Example: "Current book is 95% US-session trend following. This trades
+             Asian session mean reversion — different time, different style,
+             different regime sensitivity."
+
+# ============================================================
+# Free-form notes (papers, links, references)
+# ============================================================
+notes: |
+  Reference papers, blog posts, observed anomalies, etc.
