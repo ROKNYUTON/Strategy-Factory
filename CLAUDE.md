@@ -57,6 +57,7 @@
 | Acceptance check | `analysis/acceptance_check.py` | PASS/FAIL gate against `acceptance_criteria` in spec. |
 | Hypothesis log | `docs/HYPOTHESIS_LOG.md` | Append-only research diary. |
 | Python alpha engine | `python_engine/` | Python-first research engine: vectorized backtests, optimization, top-N selection before MQL5 translation. |
+| MQL5-faithful indicators | `python_engine/indicators_mql5.py` | SMA / EMA / SMMA / LWMA / RSI / ATR / Bollinger / Stochastic / MACD producing bit-identical output to MT5. Validated by `tests/test_indicators_mql5.py` against hand-computed golden values. |
 | Per-strategy workspace | `strategies/<name>/` | One folder per hypothesis: code, data_cache, results, logs, README. Bootstrapped from `strategies/.template/`. |
 | Python pipeline | `automation/pipeline_python.py` | Python-first orchestrator: paper → strategy code → optimize → top-10 → MQL5 translation handoff. |
 
@@ -184,7 +185,17 @@ python automation/pipeline.py verdict STR_001_asian_mr_fx
 | Task 5 — Pipeline orchestrator         | ✅ |
 | Task 6 — Documentation                 | ✅ |
 | Task 7 — E2E tests + fixtures          | ✅ |
-| Tests passing                          | 25/25 |
+| Task 8 — Python alpha engine: data fetcher (`python_engine/data_fetcher.py`) | ✅ |
+| Task 8 — Python alpha engine: indicators (`python_engine/indicators_mql5.py`, MQL5-faithful) | ✅ |
+| Tests passing                          | 63/63 |
+
+**Indicator parity rule.** Every indicator in `python_engine/indicators_mql5.py` is asserted to match MT5 (`iMA`, `iRSI`, `iATR`, `iBands`, `iStochastic`, `iMACD`) to float64 precision via hand-computed golden values in `tests/test_indicators_mql5.py`. If you add a new indicator, the test must pin first/last values you computed by hand — comparing against another Python TA library is NOT acceptable, because most of them disagree with MT5 (sample vs population std in BB, EMA vs SMA signal in MACD, plain mean vs SMMA in RSI, etc.). Common porting bugs to watch for:
+
+- RSI uses **SMMA** (Wilder smoothing), not a simple rolling mean.
+- Bollinger Bands use **population** std (divide by N), not sample (N − 1).
+- MACD signal line is an **SMA** of the MACD line in MT5, not an EMA.
+- Stochastic in `MODE_LOWHIGH` + `MODE_SMA` uses a **sum-over-sum** form (`100 * Σ(close − LL) / Σ(HH − LL)`), not an SMA of raw %K.
+- EMA / SMMA are **seeded with the SMA of the first `period` bars**, not with the first close.
 
 ---
 

@@ -77,6 +77,11 @@ StrategyFactory/
 ├── data_ingestion/
 │   └── tick_data_manager.py   ← Verifies tick availability before backtest
 │
+├── python_engine/             ← Python-first research engine
+│   ├── data_fetcher.py        ← MT5 OHLC + spread → parquet cache (server time)
+│   └── indicators_mql5.py     ← SMA/EMA/SMMA/LWMA/RSI/ATR/BB/Stoch/MACD,
+│                                 bit-identical to MT5 iMA/iRSI/iATR/iBands/...
+│
 ├── automation/
 │   ├── spec_validator.py       ← Pydantic schema validation
 │   ├── ea_generator.py         ← YAML → prompt + skeleton
@@ -115,6 +120,8 @@ StrategyFactory/
 ├── tests/
 │   ├── test_spec_validator.py    ← 14 unit tests
 │   ├── test_pipeline_e2e.py      ← 11 E2E tests with synthetic fixtures
+│   ├── test_data_fetcher.py      ← 15 unit tests (MetaTrader5 mocked)
+│   ├── test_indicators_mql5.py   ← 23 golden-value tests (MT5 parity)
 │   └── fixtures/                 ← Synthetic backtest JSONs (pass/fail/swap-trap)
 │
 ├── scripts/
@@ -166,12 +173,40 @@ StrategyFactory/
 | Task 6 — Documentation                 | ✅ |
 | Task 7 — E2E tests + fixtures          | ✅ |
 | Task 8 — Python-first Alpha Research engine | 🚧 In progress |
-| **Tests passing**                      | **25/25** |
+|   ↳ `python_engine/data_fetcher.py` (MT5 → parquet cache) | ✅ |
+|   ↳ `python_engine/indicators_mql5.py` (MQL5-parity indicators) | ✅ |
+| **Tests passing**                      | **63/63** |
 
 ### Verified working in this build
 - `python automation/spec_validator.py strategy_specs/_EXAMPLE_asian_mr_fx.yaml` → ✅ valid
 - `python automation/ea_generator.py strategy_specs/_EXAMPLE_asian_mr_fx.yaml` → ✅ skeleton + prompt produced
-- `python -m pytest tests/` → ✅ 25/25 pass
+- `python -m pytest tests/` → ✅ 63/63 pass
+- `python -m pytest tests/test_indicators_mql5.py` → ✅ 23/23 MT5-parity golden values pass
+
+### Python research engine — MQL5 indicator parity
+
+`python_engine/indicators_mql5.py` exposes drop-in vectorized equivalents of
+the MT5 indicators used in EA logic, so a strategy can be researched and
+optimized in Python and then translated to MQL5 with the **same exact
+arithmetic**:
+
+| Function | MT5 equivalent | Notes |
+|---|---|---|
+| `sma(series, period)` | `iMA(MODE_SMA)` | Rolling mean. |
+| `ema(series, period)` | `iMA(MODE_EMA)` | Seeded with SMA of first `period`; α = 2/(period+1). |
+| `smma(series, period)` | `iMA(MODE_SMMA)` | Wilder's MA; α = 1/period. |
+| `lwma(series, period)` | `iMA(MODE_LWMA)` | Linear weights 1..period. |
+| `rsi(close, period)` | `iRSI` | SMMA on gains/losses (NOT plain mean). |
+| `atr(df, period)` | `iATR` | Needs `high`, `low`, `close`. |
+| `bollinger_bands(close, period, deviations, shift)` | `iBands` | **Population** std (÷N), not sample. |
+| `stochastic(df, k_period, d_period, slowing)` | `iStochastic` (LOWHIGH + SMA) | MT5 sum/sum form. |
+| `macd(close, fast, slow, signal)` | `iMACD` | Signal line is **SMA** of MACD (MT5 default). |
+
+Each function is validated by hand-computed golden values in
+`tests/test_indicators_mql5.py`. If you add a new indicator, do the same:
+**don't compare against another Python TA library** — most disagree with MT5
+on at least one detail. Compute first/last values by hand, document them in
+the test docstring, and pin them.
 
 ### Requires manual setup on Windows VPS
 - MT5 install path → edit `config/mt5_paths.yaml`
