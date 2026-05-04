@@ -187,7 +187,10 @@ python automation/pipeline.py verdict STR_001_asian_mr_fx
 | Task 7 — E2E tests + fixtures          | ✅ |
 | Task 8 — Python alpha engine: data fetcher (`python_engine/data_fetcher.py`) | ✅ |
 | Task 8 — Python alpha engine: indicators (`python_engine/indicators_mql5.py`, MQL5-faithful) | ✅ |
-| Tests passing                          | 63/63 |
+| Task 8 — Python alpha engine: vectorized backtester (`python_engine/vectorized_backtest.py`) | ✅ |
+| Task 8 — Python alpha engine: Optuna optimizer (`python_engine/optuna_optimizer.py`)         | ✅ |
+| Task 8 — Strategy skeleton generator + report (`automation/generate_strategy.py`, `python_engine/report_generator.py`) | ✅ |
+| Tests passing                          | 125/125 |
 
 **Indicator parity rule.** Every indicator in `python_engine/indicators_mql5.py` is asserted to match MT5 (`iMA`, `iRSI`, `iATR`, `iBands`, `iStochastic`, `iMACD`) to float64 precision via hand-computed golden values in `tests/test_indicators_mql5.py`. If you add a new indicator, the test must pin first/last values you computed by hand — comparing against another Python TA library is NOT acceptable, because most of them disagree with MT5 (sample vs population std in BB, EMA vs SMA signal in MACD, plain mean vs SMMA in RSI, etc.). Common porting bugs to watch for:
 
