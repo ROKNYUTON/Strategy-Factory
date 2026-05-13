@@ -79,8 +79,14 @@ StrategyFactory/
 │
 ├── python_engine/             ← Python-first research engine
 │   ├── data_fetcher.py        ← MT5 OHLC + spread → parquet cache (server time)
-│   └── indicators_mql5.py     ← SMA/EMA/SMMA/LWMA/RSI/ATR/BB/Stoch/MACD,
-│                                 bit-identical to MT5 iMA/iRSI/iATR/iBands/...
+│   ├── indicators_mql5.py     ← SMA/EMA/SMMA/LWMA/RSI/ATR/BB/Stoch/MACD,
+│   │                             bit-identical to MT5 iMA/iRSI/iATR/iBands/...
+│   ├── vectorized_backtest.py ← Pandas/Numpy backtester with cost model
+│   ├── optuna_optimizer.py    ← Multi-asset Optuna optimizer
+│   ├── report_generator.py    ← Per-strategy results report writer
+│   └── python_to_mql5_translator.py  ← Winning Python strategy + best params
+│                                       → MT5 EA (auto for known patterns,
+│                                       prompt for Claude Code otherwise)
 │
 ├── automation/
 │   ├── spec_validator.py       ← Pydantic schema validation
@@ -175,7 +181,11 @@ StrategyFactory/
 | Task 8 — Python-first Alpha Research engine | 🚧 In progress |
 |   ↳ `python_engine/data_fetcher.py` (MT5 → parquet cache) | ✅ |
 |   ↳ `python_engine/indicators_mql5.py` (MQL5-parity indicators) | ✅ |
-| **Tests passing**                      | **63/63** |
+|   ↳ `python_engine/vectorized_backtest.py` (pandas backtester) | ✅ |
+|   ↳ `python_engine/optuna_optimizer.py` (Optuna multi-asset) | ✅ |
+|   ↳ `automation/generate_strategy.py` + `python_engine/report_generator.py` | ✅ |
+|   ↳ `python_engine/python_to_mql5_translator.py` (Python → MT5 EA) | ✅ |
+| **Tests passing**                      | **115+ (full suite runs on Windows VPS with MT5 + parquet)** |
 
 ### Verified working in this build
 - `python automation/spec_validator.py strategy_specs/_EXAMPLE_asian_mr_fx.yaml` → ✅ valid
@@ -207,6 +217,41 @@ Each function is validated by hand-computed golden values in
 **don't compare against another Python TA library** — most disagree with MT5
 on at least one detail. Compute first/last values by hand, document them in
 the test docstring, and pin them.
+
+### Python → MQL5 translator
+
+Once optimization has produced a top-N table for a strategy, translate the
+winning trial into an MT5 EA:
+
+```bash
+python -m python_engine.python_to_mql5_translator strategies/mean_rev_1/ --rank 1
+# add --compile to invoke metaeditor64.exe on the Windows VPS
+# add --force-manual to always emit a Claude Code prompt instead of auto-filling
+```
+
+The translator runs in one of two modes:
+
+1. **Auto** — when `strategy.py` matches a known pattern (today: RSI + Bollinger
+   + ATR mean reversion with optional session filter), it deterministically
+   fills the four AI-marker blocks in `mql5/_template/BaseEA_Template.mq5`
+   using the same indicator semantics that `indicators_mql5.py` guarantees
+   match MT5 to float64 precision.
+2. **Manual** — for any other pattern, it writes a Claude Code prompt to
+   `strategies/<name>/mql5_translation/translation_prompt.md` containing the
+   strategy source, the winning parameters, the metadata-filled EA skeleton,
+   and the python → MQL5 mapping cheat-sheet. The trader pastes the prompt
+   into Claude Code in VS Code, reviews the output, saves the completed EA,
+   and re-runs the translator with `--compile`.
+
+Both modes produce a `translation_report.md` listing what was translated
+automatically vs. what still needs review. A strategy can override pattern
+detection by adding a comment block to `strategy.py`:
+
+```python
+# MQL5_TRANSLATION_HINTS
+# pattern: rsi_bb_atr_mean_reversion   # force this pattern
+# force_manual: true                    # always emit a prompt
+```
 
 ### Requires manual setup on Windows VPS
 - MT5 install path → edit `config/mt5_paths.yaml`

@@ -60,6 +60,7 @@
 | MQL5-faithful indicators | `python_engine/indicators_mql5.py` | SMA / EMA / SMMA / LWMA / RSI / ATR / Bollinger / Stochastic / MACD producing bit-identical output to MT5. Validated by `tests/test_indicators_mql5.py` against hand-computed golden values. |
 | Per-strategy workspace | `strategies/<name>/` | One folder per hypothesis: code, data_cache, results, logs, README. Bootstrapped from `strategies/.template/`. |
 | Python pipeline | `automation/pipeline_python.py` | Python-first orchestrator: paper → strategy code → optimize → top-10 → MQL5 translation handoff. |
+| Python → MQL5 translator | `python_engine/python_to_mql5_translator.py` | Translates `strategies/<name>/strategy.py` + winning trial params into an MQL5 EA. Auto path for the RSI+BB+ATR pattern; prompt-builder fallback for everything else. |
 
 ---
 
@@ -190,7 +191,8 @@ python automation/pipeline.py verdict STR_001_asian_mr_fx
 | Task 8 — Python alpha engine: vectorized backtester (`python_engine/vectorized_backtest.py`) | ✅ |
 | Task 8 — Python alpha engine: Optuna optimizer (`python_engine/optuna_optimizer.py`)         | ✅ |
 | Task 8 — Strategy skeleton generator + report (`automation/generate_strategy.py`, `python_engine/report_generator.py`) | ✅ |
-| Tests passing                          | 125/125 |
+| Task 8 — Python → MQL5 translator (`python_engine/python_to_mql5_translator.py`) | ✅ |
+| Tests passing                          | 115/115 (excl. pre-existing MT5/pyarrow/matplotlib gaps on macOS) |
 
 **Indicator parity rule.** Every indicator in `python_engine/indicators_mql5.py` is asserted to match MT5 (`iMA`, `iRSI`, `iATR`, `iBands`, `iStochastic`, `iMACD`) to float64 precision via hand-computed golden values in `tests/test_indicators_mql5.py`. If you add a new indicator, the test must pin first/last values you computed by hand — comparing against another Python TA library is NOT acceptable, because most of them disagree with MT5 (sample vs population std in BB, EMA vs SMA signal in MACD, plain mean vs SMMA in RSI, etc.). Common porting bugs to watch for:
 
